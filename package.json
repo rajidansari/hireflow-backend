@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node --watch index.js"
+    "dev": "node --watch index.js",
+    "start": "node index.js",
+    "migrate:create": "node-pg-migrate create --migrations-dir src/db/migrations",
+    "migrate:up": "DATABASE_URL=$DATABASE_URL_LOCAL node-pg-migrate up --migrations-dir src/db/migrations",
+    "migrate:down": "DATABASE_URL=$DATABASE_URL_LOCAL node-pg-migrate down --migrations-dir src/db/migrations"
   },
   "keywords": [],
   "author": "",
