@@ -7,8 +7,8 @@
     "dev": "node --watch index.js",
     "start": "node index.js",
     "migrate:create": "node-pg-migrate create --migrations-dir src/db/migrations",
-    "migrate:up": "DATABASE_URL=$DATABASE_URL_LOCAL node-pg-migrate up --migrations-dir src/db/migrations",
-    "migrate:down": "DATABASE_URL=$DATABASE_URL_LOCAL node-pg-migrate down --migrations-dir src/db/migrations"
+    "migrate:up": "node-pg-migrate up --migrations-dir src/db/migrations --dotenv .env --database-url-var DATABASE_URL_LOCAL ",
+    "migrate:down": "node-pg-migrate down --migrations-dir src/db/migrations --dotenv .env --database-url-var DATABASE_URL_LOCAL "
   },
   "keywords": [],
   "author": "",
