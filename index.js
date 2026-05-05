@@ -1,3 +1,6 @@
-import pool from "./src/db/db.js";
+import app from "./app.js";
+import { config } from "./src/config/index.js"
 
-console.log(await pool.query(`SELECT NOW()`));
+app.listen(config.port, () => {
+	console.log(`server is running on http://localhost:${config.port}`);
+})
