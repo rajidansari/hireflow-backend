@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node --watch index.js",
+    "dev": "nodemon index.js",
     "start": "node index.js",
     "migrate:create": "node-pg-migrate create --migrations-dir src/db/migrations",
     "migrate:up": "node-pg-migrate up --migrations-dir src/db/migrations --dotenv .env --database-url-var DATABASE_URL_LOCAL ",
@@ -20,7 +20,8 @@
     "express": "^5.2.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
-    "pg": "^8.20.0"
+    "pg": "^8.20.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "eslint": "^10.3.0",
