@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import authRoutes from "./src/routes/auth.routes.js"
 
 const app = express();
 
@@ -16,6 +17,10 @@ app.get('/', (req, res) => {
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
+// routes
+app.use("/api/v1/auth", authRoutes);
+
 
 // catch-all route
 app.use((req, res) => {

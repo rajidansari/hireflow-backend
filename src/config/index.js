@@ -12,9 +12,26 @@ export const config = {
         ? process.env.DATABASE_URL_LOCAL
         : process.env.DATABASE_URL_NEON,
   },
+
+  jwt: {
+    accessTokenKey: process.env.ACCESS_TOKEN_KEY,
+    refreshTokenKey: process.env.REFRESH_TOKEN_KEY,
+  },
+
+  smtp: {
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    user: process.env.SMTP_USER,
+    password: process.env.SMTP_PASS,
+  }
 };
 
-const required = ['DATABASE_URL_LOCAL', 'DATABASE_URL_NEON'];
+const required = [
+  'DATABASE_URL_LOCAL',
+  'DATABASE_URL_NEON',
+  'ACCESS_TOKEN_KEY',
+  'REFRESH_TOKEN_KEY',
+];
 
 for (const key of required) {
   if (!process.env[key]) {
