@@ -35,6 +35,12 @@ const registerSchema = z.object({
 			})
 		}
 	}
-})
+});
 
-export { registerSchema };
+
+const verifyEmailSchema = z.object({
+	email: z.email({error: "Email is required"}),
+	otp: z.string().length(6, { error: "Invalid otp" })
+});
+
+export { registerSchema, verifyEmailSchema };
