@@ -138,4 +138,16 @@ const loginUser = async (req, res) => {
   }
 };
 
-export { registerUserWithProfile, verifyUserEmail, loginUser };
+// logout user
+const logoutUser = async (req, res) => {
+  try {
+    res.clearCookie('refreshToken');
+
+    res.status(200).json({message: "User logout success"});
+  } catch (err) {
+    console.log(`user logout failed :: ${err}`);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export { registerUserWithProfile, verifyUserEmail, loginUser, logoutUser };
