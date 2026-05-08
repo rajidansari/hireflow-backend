@@ -1,5 +1,5 @@
 import pool from '../db/db.js';
-import { hashPassword } from '../utils/hash.utils.js';
+import { comparePassword, hashPassword } from '../utils/hash.utils.js';
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -17,6 +17,11 @@ const registerUserWithProfile = async (req, res) => {
     const hashedPassword = await hashPassword(password);
 
     const otp = generateOtp();
+
+    const isAlreadyUser = await pool.query(`SELECT email FROM users WHERE email = $1`, [email]);
+    if (isAlreadyUser.rows[0]) {
+      return res.status(400).json({ message: 'Email is already registered, try logging!' });
+    }
 
     await client.query('BEGIN');
 
@@ -55,14 +60,13 @@ const verifyUserEmail = async (req, res) => {
   const { email, otp } = req.body;
 
   try {
-
     const result = await pool.query(
       `SELECT id, role FROM users WHERE email=$1 AND otp=$2 AND NOW() < otp_expiry`,
       [email, otp]
     );
 
     const user = result.rows[0];
-    
+
     if (!user) {
       return res.status(404).json({ message: 'Invalid otp or expired' });
     }
@@ -81,17 +85,57 @@ const verifyUserEmail = async (req, res) => {
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: config.nodeEnv === "production",
+      secure: config.nodeEnv === 'production',
       sameSite: 'Lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.status(200).json({message: "Verification success", accessToken});
-
+    res.status(200).json({ message: 'Verification success', accessToken });
   } catch (err) {
     console.log(`User email verification failed :: ${err.message}`);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-export { registerUserWithProfile, verifyUserEmail };
+// login user
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const result = await pool.query(
+      `SELECT id, role, is_verified, password_hash FROM users WHERE email = $1`,
+      [email]
+    );
+
+    const user = result.rows[0];
+
+    if (!user) return res.status(401).json({ message: 'Invalid email or password' });
+
+    const dummyHash = '$2b$10$invalidhashfortimingreasons';
+
+    const isMatched = await comparePassword(password, user ? user.password_hash : dummyHash);
+
+    if (!isMatched) return res.status(401).json({ message: 'Invalid email or password' });
+
+    if (!user.is_verified) {
+      return res.status(403).json({ message: 'Please verify your email first' });
+    }
+
+    const accessToken = generateAccessToken(user.id, user.role);
+    const refreshToken = generateRefreshToken(user.id);
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: config.nodeEnv === 'production',
+      sameSite: 'Lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.status(200).json({ message: 'Login success', accessToken });
+  } catch (err) {
+    console.log(`User login failed :: ${err.message}`);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export { registerUserWithProfile, verifyUserEmail, loginUser };
