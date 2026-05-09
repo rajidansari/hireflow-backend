@@ -2,11 +2,15 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import authRoutes from "./src/routes/auth.routes.js"
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
 app.use(helmet());
 app.use(cors());
+
+// to get cookies in req
+app.use(cookieParser());
 
 app.use(express.json());
 
