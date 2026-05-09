@@ -7,8 +7,9 @@ import {
   validateRefreshToken,
 } from '../utils/jwt.utils.js';
 import { generateOtp } from '../utils/otp.utils.js';
-import { sendOtpEmail } from '../services/sendEmail.service.js';
+import { sendOtpEmail, sendPasswordResetOtp } from '../services/sendEmail.service.js';
 import { config } from '../config/index.js';
+import jwt from 'jsonwebtoken';
 
 const registerUserWithProfile = async (req, res) => {
   const { fullname, email, password, role, companyName, industry, location } = req.body;
@@ -179,4 +180,113 @@ const refreshAccessToken = async (req, res) => {
   }
 };
 
-export { registerUserWithProfile, verifyUserEmail, loginUser, logoutUser, refreshAccessToken };
+// forgot password
+const forgotUserPassword = async (req, res) => {
+  const { email } = req.body;
+  console.log(email);
+
+  try {
+    const result = await pool.query(`SELECT id FROM users WHERE email=$1`, [email]);
+
+    const user = result.rows[0];
+
+    if (!user) {
+      return res.status(200).json({ message: 'Check your email for otp' });
+    }
+
+    const otp = generateOtp();
+    await pool.query(
+      `UPDATE users SET otp = $1, otp_expiry = NOW() + INTERVAL '10 minutes' WHERE id=$2`,
+      [otp, user.id]
+    );
+
+    await sendPasswordResetOtp(email, otp);
+
+    res.status(200).json({ message: 'Check your email for otp' });
+  } catch (err) {
+    console.log(`forgot password failed :: ${err}`);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// verify reset password otp
+const verifyResetOtp = async (req, res) => {
+  const { email, otp } = req.body;
+
+  try {
+    const result = await pool.query(
+      `SELECT id FROM users WHERE email = $1 AND otp = $2 AND NOW() < otp_expiry`,
+      [email, otp]
+    );
+
+    const user = result.rows[0];
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired otp' });
+    }
+
+    await pool.query(`UPDATE users SET otp=null, otp_expiry=null WHERE id=$1`, [user.id]);
+
+    const resetToken = jwt.sign({ userId: user.id }, config.jwt.resetTokenKey, {
+      expiresIn: '10m',
+    });
+
+    res.cookie('resetToken', resetToken, {
+      httpOnly: true,
+      secure: config.nodeEnv === 'production',
+      sameSite: 'Lax',
+      maxAge: 10 * 60 * 1000,
+    });
+
+    res.status(200).json({ message: 'otp verification success' });
+  } catch (err) {
+    console.log(`verify reset otp failed :: ${err}`);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// reset user password
+const resetUserPassword = async (req, res) => {
+  const { password } = req.body;
+
+  try {
+    const resetToken = req.cookies?.resetToken;
+    if (!resetToken) return res.status(401).json({ message: 'Unauthorize access denied' });
+
+    const decoded = jwt.verify(resetToken, config.jwt.resetTokenKey);
+
+    const result = await pool.query(`SELECT id FROM users WHERE id=$1`, [decoded.userId]);
+
+    const user = result.rows[0];
+
+    if (!user) return res.status(404).json({ message: 'Invalid or expired token' });
+
+    const hashedPassword = await hashPassword(password);
+
+    await pool.query(`UPDATE users SET password_hash=$1 WHERE id=$2`, [hashedPassword, user.id]);
+
+    res.clearCookie('resetToken');
+
+    res.status(200).json({ message: 'Password reset success' });
+  } catch (err) {
+    console.log(`Reset password failed :: ${err}`);
+    if (err.name === 'TokenExpiredError') {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export {
+  registerUserWithProfile,
+  verifyUserEmail,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  forgotUserPassword,
+  verifyResetOtp,
+  resetUserPassword,
+};

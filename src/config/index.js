@@ -16,6 +16,7 @@ export const config = {
   jwt: {
     accessTokenKey: process.env.ACCESS_TOKEN_KEY,
     refreshTokenKey: process.env.REFRESH_TOKEN_KEY,
+    resetTokenKey: process.env.JWT_RESET_SECRET,
   },
 
   smtp: {
