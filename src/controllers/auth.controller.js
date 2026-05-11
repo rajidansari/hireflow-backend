@@ -183,7 +183,6 @@ const refreshAccessToken = async (req, res) => {
 // forgot password
 const forgotUserPassword = async (req, res) => {
   const { email } = req.body;
-  console.log(email);
 
   try {
     const result = await pool.query(`SELECT id FROM users WHERE email=$1`, [email]);

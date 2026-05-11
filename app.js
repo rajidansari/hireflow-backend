@@ -1,8 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import authRoutes from "./src/routes/auth.routes.js"
+import authRoutes from './src/routes/auth.routes.js';
 import cookieParser from 'cookie-parser';
+import jobRoutes from './src/routes/job.routes.js';
 
 const app = express();
 
@@ -23,8 +24,8 @@ app.get('/health', (req, res) => {
 });
 
 // routes
-app.use("/api/v1/auth", authRoutes);
-
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/jobs', jobRoutes);
 
 // catch-all route
 app.use((req, res) => {
