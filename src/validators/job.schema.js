@@ -1,7 +1,6 @@
 import * as z from 'zod';
 
 const createJobSchema = z.object({
-  employer_id: z.uuid({ error: 'Employer id is required' }),
   title: z.string({ error: 'Job title is required' }),
   description: z.string({ error: 'Job description is required' }),
   skills: z
@@ -13,4 +12,24 @@ const createJobSchema = z.object({
   status: z.enum(['draft', 'active', 'expired'], { error: 'Choose job status' }).optional(),
 });
 
-export { createJobSchema };
+// get all job schema
+const getAllJobSchema = z.object({
+  title: z.string().min(3).optional(),
+  skills: z
+    .string()
+    .transform(value =>
+      value
+        .split(',')
+        .map(skill => skill.trim())
+        .filter(Boolean)
+    )
+    .optional(),
+  location: z.string().optional(),
+  salary_min: z.coerce.number().optional(),
+  salary_max: z.coerce.number().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(40).default(15),
+  sort: z.enum(['newest', 'oldest', 'salary_high', 'salary_low']).default('newest'),
+});
+
+export { createJobSchema, getAllJobSchema };
