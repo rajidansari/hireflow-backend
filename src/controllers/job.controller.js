@@ -84,6 +84,9 @@ const getAllJob = async (req, res) => {
       filters.push(`jobs.salary_max <= $${values.length}`);
     }
 
+    // status filter
+    filters.push(`jobs.status = 'active'`);
+
     // where clause
     let whereClause = '';
 
@@ -178,4 +181,46 @@ const getAllJob = async (req, res) => {
   }
 };
 
-export { createJob, getAllJob };
+// get a single job detail
+const getJobDetails = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      `
+        SELECT
+          j.id,
+          j.title,
+          j.description,
+          j.skills,
+          j.location,
+          j.salary_min,
+          j.salary_max,
+          j.status,
+          j.created_at,
+
+          ep.id AS employer_id,
+          ep.company_name,
+          ep.logo_url,
+          ep.website
+        FROM jobs j
+        INNER JOIN employer_profiles ep
+        ON ep.id = j.employer_id
+
+        WHERE j.id = $1;
+      `,
+      [id]
+    );
+
+    const job = result.rows[0];
+
+    if (!job) return res.status(404).json({ message: 'Request job not found' });
+
+    res.status(200).json({ message: 'success', data: job });
+  } catch (err) {
+    console.log(`Failed to fetch job details :: ${err}`);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export { createJob, getAllJob, getJobDetails };
