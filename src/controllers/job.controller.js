@@ -214,7 +214,7 @@ const getJobDetails = async (req, res) => {
 
     const job = result.rows[0];
 
-    if (!job) return res.status(404).json({ message: 'Request job not found' });
+    if (!job) return res.status(404).json({ message: 'Requested job not found' });
 
     res.status(200).json({ message: 'success', data: job });
   } catch (err) {
@@ -223,4 +223,97 @@ const getJobDetails = async (req, res) => {
   }
 };
 
-export { createJob, getAllJob, getJobDetails };
+// update job
+const updateJobDetails = async (req, res) => {
+  const { id } = req.params;
+  const { title, description, skills, location, salary_min, salary_max, status } = req.body;
+
+  try {
+    const empResult = await pool.query(`SELECT id FROM employer_profiles WHERE user_id = $1`, [
+      req.user.userId,
+    ]);
+
+    const employer = empResult.rows[0];
+
+    if (!employer) {
+      return res.status(403).json({ message: 'Can not perform this task' });
+    }
+
+    const employerId = employer.id;
+
+    // base query parts
+    const updates = [];
+    const values = [];
+
+    // updates
+    if (title) {
+      values.push(title);
+      updates.push(`title = $${values.length}`);
+    }
+
+    if (description) {
+      values.push(description);
+      updates.push(`description = $${values.length}`);
+    }
+
+    if (skills && skills.length > 0) {
+      values.push(skills);
+      updates.push(`skills = $${values.length}`);
+    }
+
+    if (location) {
+      values.push(location);
+      updates.push(`location = $${values.length}`);
+    }
+
+    if (salary_min) {
+      values.push(salary_min);
+      updates.push(`salary_min = $${values.length}`);
+    }
+
+    if (salary_max) {
+      values.push(salary_max);
+      updates.push(`salary_max = $${values.length}`);
+    }
+
+    if (status) {
+      values.push(status);
+      updates.push(`status = $${values.length}`);
+    }
+
+    // check if updates has value
+    if (updates.length === 0) {
+      return res.status(400).json({ message: 'Nothing to update' });
+    }
+
+    // update clause
+    const updateClause = `SET ${updates.join(', ')}`;
+
+    // main query
+    const updateQuery = `
+      UPDATE jobs
+      
+      ${updateClause}
+
+      WHERE id = $${values.length + 1}
+      AND employer_id = $${values.length + 2}
+
+      RETURNING id, title, description, skills, location, salary_min, salary_max, status, updated_at
+    `;
+
+    const updateResult = await pool.query(updateQuery, [...values, id, employerId]);
+
+    const updatedJob = updateResult.rows[0];
+
+    if (!updatedJob) {
+      return res.status(404).json({ message: 'Requested job not found' });
+    }
+
+    res.status(200).json({ message: 'success', data: updatedJob });
+  } catch (err) {
+    console.log(`Failed to update job details :: ${err}`);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export { createJob, getAllJob, getJobDetails, updateJobDetails };

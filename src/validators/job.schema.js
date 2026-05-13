@@ -1,3 +1,4 @@
+import e from 'express';
 import * as z from 'zod';
 
 const createJobSchema = z.object({
@@ -32,4 +33,15 @@ const getAllJobSchema = z.object({
   sort: z.enum(['newest', 'oldest', 'salary_high', 'salary_low']).default('newest'),
 });
 
-export { createJobSchema, getAllJobSchema };
+// update job schema
+const updateJobDetailsSchema = z.object({
+  title: z.string().optional(),
+  description: z.string().optional(),
+  skills: z.array(z.string()).nonempty().optional(),
+  location: z.string().optional(),
+  salary_min: z.number().int().optional(),
+  salary_max: z.number().int().optional(),
+  status: z.enum(['draft', 'active', 'expired']).optional(),
+});
+
+export { createJobSchema, getAllJobSchema, updateJobDetailsSchema };
