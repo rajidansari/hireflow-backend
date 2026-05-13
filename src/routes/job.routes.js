@@ -13,6 +13,7 @@ import {
   getJobDetails,
   updateJobDetails,
   deleteJob,
+  getMyJobs,
 } from '../controllers/job.controller.js';
 import checkRole from '../middleware/role.middleware.js';
 
@@ -20,6 +21,7 @@ const router = Router();
 
 router.post('/', auth, checkRole(['employer']), validate(createJobSchema), createJob);
 router.get('/', getAllJob);
+router.get('/my-jobs', auth, checkRole(['employer']), getMyJobs);
 router.get('/:id', getJobDetails);
 router.patch(
   '/:id',

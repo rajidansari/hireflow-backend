@@ -349,4 +349,33 @@ const deleteJob = async (req, res) => {
   }
 };
 
-export { createJob, getAllJob, getJobDetails, updateJobDetails, deleteJob };
+// get employer-posted jobs
+const getMyJobs = async (req, res) => {
+  try {
+    const empResult = await pool.query(`SELECT id FROM employer_profiles WHERE user_id = $1`, [
+      req.user.userId,
+    ]);
+
+    const employer = empResult.rows[0];
+
+    if (!employer) {
+      return res.status(403).json({ message: 'Unauthorized access denied' });
+    }
+
+    const employerId = employer.id;
+
+    const jobsResult = await pool.query(
+      `SELECT id, title, description, skills, location, salary_min, salary_max, status, created_at FROM jobs WHERE employer_id = $1`,
+      [employerId]
+    );
+
+    const jobs = jobsResult.rows;
+
+    res.status(200).json({ message: 'success', data: jobs });
+  } catch (err) {
+    console.log(`Failed to fetch jobs :: ${err}`);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export { createJob, getAllJob, getJobDetails, updateJobDetails, deleteJob, getMyJobs };
