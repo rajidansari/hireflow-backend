@@ -130,7 +130,9 @@ const getAllJob = async (req, res) => {
 
     // result count query
     const countQuery = `
-      SELECT COUNT(id) AS total FROM jobs
+      SELECT COUNT(jobs.id) AS total FROM jobs
+      JOIN employer_profiles
+      ON employer_profiles.id = jobs.employer_id
 
       ${whereClause}
     `;
