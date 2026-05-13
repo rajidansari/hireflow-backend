@@ -12,6 +12,7 @@ import {
   getAllJob,
   getJobDetails,
   updateJobDetails,
+  deleteJob,
 } from '../controllers/job.controller.js';
 import checkRole from '../middleware/role.middleware.js';
 
@@ -27,5 +28,7 @@ router.patch(
   validate(updateJobDetailsSchema),
   updateJobDetails
 );
+
+router.delete('/:id', auth, checkRole(['employer']), deleteJob);
 
 export default router;

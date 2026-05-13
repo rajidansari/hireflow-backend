@@ -316,4 +316,37 @@ const updateJobDetails = async (req, res) => {
   }
 };
 
-export { createJob, getAllJob, getJobDetails, updateJobDetails };
+// delete job
+const deleteJob = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const empResult = await pool.query(`SELECT id FROM employer_profiles WHERE user_id = $1`, [
+      req.user.userId,
+    ]);
+
+    const employer = empResult.rows[0];
+
+    if (!employer) {
+      return res.status(403).json({ message: 'You can not perform this action' });
+    }
+
+    const employerId = employer.id;
+
+    const result = await pool.query(
+      `DELETE FROM jobs WHERE id = $1 AND employer_id = $2 RETURNING id`,
+      [id, employerId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Requested job not found' });
+    }
+
+    res.status(200).json({ message: 'Deleted successfully' });
+  } catch (err) {
+    console.log(`Failed to delete :: ${err}`);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export { createJob, getAllJob, getJobDetails, updateJobDetails, deleteJob };
