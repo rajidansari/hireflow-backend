@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { fileUnlink } from '../utils/fileUnlink.utils.js';
 import pool from '../db/db.js';
+import { jobApplicationsSchema } from '../validators/application.schema.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -74,4 +75,101 @@ const createJobApplication = async (req, res) => {
   }
 };
 
-export { createJobApplication };
+// get all applications for a specific job
+const getJobApplications = async (req, res) => {
+  const jobId = req.params?.jobId;
+  try {
+    const validatedQueries = jobApplicationsSchema.safeParse(req.query);
+
+    const { limit, page, status, sort } = validatedQueries.data;
+
+    const offset = (page - 1) * limit;
+
+    // base query parts
+    const filters = [];
+    const values = [];
+
+    // filters
+    if (jobId) {
+      values.push(jobId);
+      filters.push(`job_id = $${values.length}`);
+    }
+
+    if (status) {
+      values.push(status);
+      filters.push(`status = $${values.length}`);
+    }
+
+    const sortOptions = {
+      newest: 'applied_at DESC',
+      oldest: 'applied_at ASC',
+    };
+
+    const orderBy = sortOptions[sort] || sortOptions['newest'];
+
+    // where clause
+    let whereClause = null;
+
+    if (filters.length > 0) {
+      whereClause = `WHERE ${filters.join(' AND ')}`;
+    }
+
+    const resultCountQuery = `
+      SELECT COUNT(id) AS total FROM applications ${whereClause}
+    `;
+
+    const mainQuery = `
+      SELECT
+        id,
+        job_id,
+        candidate_id,
+        cv_url,
+        status,
+        cover_note,
+        applied_at
+      FROM applications
+
+      ${whereClause}
+
+      ORDER BY ${orderBy}
+
+      LIMIT $${values.length + 1}
+      OFFSET $${values.length + 2}
+    `;
+
+    const [applicationResult, countResult] = await Promise.all([
+      pool.query(mainQuery, [...values, limit, offset]),
+      pool.query(resultCountQuery, values),
+    ]);
+
+    // pagination info
+    const totalResults = Number(countResult.rows[0].total);
+    const totalPages = Math.ceil(totalResults / limit);
+
+    res.status(200).json({
+      success: true,
+
+      pagination: {
+        page: page,
+        per_page: limit,
+        total_pages: totalPages,
+        total_results: totalResults,
+        has_next_page: page < totalPages,
+        has_prev_page: page > 1,
+      },
+
+      filters: {
+        status: status || null,
+        limit: limit || null,
+        sort,
+      },
+
+      data: applicationResult.rows,
+    });
+  } catch (err) {
+    console.log(`failed to fetch job applications :: ${err.message}`);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export { createJobApplication, getJobApplications };

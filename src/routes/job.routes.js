@@ -17,7 +17,7 @@ import {
 } from '../controllers/job.controller.js';
 import checkRole from '../middleware/role.middleware.js';
 import { applySchema } from '../validators/application.schema.js';
-import { createJobApplication } from '../controllers/application.controller.js';
+import { createJobApplication, getJobApplications } from '../controllers/application.controller.js';
 import { upload } from '../services/fileUpload.service.service.js';
 
 const router = Router();
@@ -45,5 +45,7 @@ router.post(
   validate(applySchema),
   createJobApplication
 );
+
+router.get('/:jobId/applications', auth, checkRole(['employer']), getJobApplications);
 
 export default router;
