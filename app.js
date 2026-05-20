@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import authRoutes from './src/routes/auth.routes.js';
 import cookieParser from 'cookie-parser';
 import jobRoutes from './src/routes/job.routes.js';
+import applicationRoutes from './src/routes/application.routes.js';
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.get('/health', (req, res) => {
 // routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/jobs', jobRoutes);
+app.use('/api/v1/application', applicationRoutes);
 
 // catch-all route
 app.use((req, res) => {
@@ -34,8 +36,7 @@ app.use((req, res) => {
 
 // global error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Internal server error' });
+  res.status(err.statusCode || 500).json({ message: err.message || 'Internal server error' });
 });
 
 export default app;

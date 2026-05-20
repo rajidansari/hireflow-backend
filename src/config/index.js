@@ -24,7 +24,13 @@ export const config = {
     port: process.env.SMTP_PORT,
     user: process.env.SMTP_USER,
     password: process.env.SMTP_PASS,
-  }
+  },
+
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    apiSecret: process.env.CLOUDINARY_SECRET_KEY,
+  },
 };
 
 const required = [

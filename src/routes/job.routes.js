@@ -16,6 +16,9 @@ import {
   getMyJobs,
 } from '../controllers/job.controller.js';
 import checkRole from '../middleware/role.middleware.js';
+import { applySchema } from '../validators/application.schema.js';
+import { createJobApplication } from '../controllers/application.controller.js';
+import { upload } from '../services/fileUpload.service.service.js';
 
 const router = Router();
 
@@ -32,5 +35,15 @@ router.patch(
 );
 
 router.delete('/:id', auth, checkRole(['employer']), deleteJob);
+
+// applications
+router.post(
+  '/:jobId/applications',
+  auth,
+  checkRole(['candidate']),
+  upload.single('cv'),
+  validate(applySchema),
+  createJobApplication
+);
 
 export default router;
