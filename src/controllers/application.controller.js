@@ -275,4 +275,35 @@ const getMyApplications = async (req, res) => {
   }
 };
 
-export { createJobApplication, getJobApplications, getMyApplications };
+const withdrawApplication = async (req, res) => {
+  const applicationId = req.params?.id;
+
+  try {
+    const candProfResult = await pool.query(
+      `SELECT id FROM candidate_profiles WHERE user_id = $1`,
+      [req.user.userId]
+    );
+
+    const candidate = candProfResult.rows[0];
+
+    if (!candidate) return res.status(403).json({ message: 'Unauthorized access denied' });
+
+    const candidateId = candidate.id;
+
+    const applicationResult = await pool.query(
+      `DELETE FROM applications WHERE id = $1 AND candidate_id = $2 RETURNING id`,
+      [applicationId, candidateId]
+    );
+
+    if (applicationResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+
+    res.status(200).json({ message: 'Application withdraw success' });
+  } catch (err) {
+    console.log(`Failed to withdraw application :: ${err}`);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export { createJobApplication, getJobApplications, getMyApplications, withdrawApplication };
