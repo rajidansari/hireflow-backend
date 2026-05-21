@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { fileUnlink } from '../utils/fileUnlink.utils.js';
 import pool from '../db/db.js';
-import { jobApplicationsSchema } from '../validators/application.schema.js';
+import { jobApplicationsSchema, myApplicationsSchema } from '../validators/application.schema.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -181,4 +181,98 @@ const getJobApplications = async (req, res) => {
   }
 };
 
-export { createJobApplication, getJobApplications };
+// get my applications
+const getMyApplications = async (req, res) => {
+  try {
+    const validatedQueries = myApplicationsSchema.safeParse(req.query);
+
+    const { status, limit, page, sort } = validatedQueries.data;
+
+    const candProfResult = await pool.query(
+      `SELECT id FROM candidate_profiles WHERE user_id = $1`,
+      [req.user.userId]
+    );
+
+    const candidate = candProfResult.rows[0];
+
+    if (!candidate) return res.status(403).json({ message: 'Unauthorized access denied' });
+
+    const candidateId = candidate.id;
+
+    const offset = (page - 1) * limit;
+
+    // base query parts
+    const filters = [`candidate_id = $1`];
+    const values = [candidateId];
+
+    // filters
+    if (status) {
+      values.push(status);
+      filters.push(`status = $${values.length}`);
+    }
+
+    // sorting
+    const sortOptions = {
+      newest: 'applied_at DESC',
+      oldest: 'applied_at ASC',
+    };
+
+    const orderBy = sortOptions[sort] || sortOptions['newest'];
+
+    const whereClause = `WHERE ${filters.join(' AND ')}`;
+
+    const resultCountQuery = `
+      SELECT COUNT(id) AS total FROM applications ${whereClause}
+    `;
+
+    const mainQuery = `
+      SELECT
+        id,
+        job_id,
+        candidate_id,
+        cv_url,
+        status,
+        cover_note,
+        applied_at
+      FROM applications
+      
+      ${whereClause}
+
+      ORDER BY ${orderBy}
+      
+      LIMIT $${values.length + 1}
+
+      OFFSET $${values.length + 2}
+    `;
+
+    const [countResult, applicationResult] = await Promise.all([
+      pool.query(resultCountQuery, values),
+      pool.query(mainQuery, [...values, limit, offset]),
+    ]);
+
+    const totalResults = Number(countResult.rows[0].total);
+    const totalPages = Math.ceil(totalResults / limit);
+
+    res.status(200).json({
+      pagination: {
+        page: page,
+        per_page: limit,
+        total_results: totalResults,
+        total_pages: totalPages,
+        has_next_page: totalPages > page,
+        has_prev_page: page > 1,
+        sort,
+      },
+
+      filters: {
+        status: status || null,
+      },
+      data: applicationResult.rows,
+    });
+  } catch (err) {
+    console.log(`Failed to fetch my applications :: ${err}`);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export { createJobApplication, getJobApplications, getMyApplications };

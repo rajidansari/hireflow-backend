@@ -12,4 +12,11 @@ const jobApplicationsSchema = z.object({
   sort: z.enum(['newest', 'oldest']).default('newest'),
 });
 
-export { applySchema, jobApplicationsSchema };
+const myApplicationsSchema = z.object({
+  status: z.enum(['pending', 'reviewed', 'hired', 'rejected']).optional(),
+  limit: z.coerce.number({ error: 'Limit must be of number type' }).max(30).default(12),
+  page: z.coerce.number({ error: 'Page must be of number type' }).default(1),
+  sort: z.enum(['newest', 'oldest']).default('newest'),
+});
+
+export { applySchema, jobApplicationsSchema, myApplicationsSchema };

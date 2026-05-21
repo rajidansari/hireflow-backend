@@ -27,7 +27,7 @@ app.get('/health', (req, res) => {
 // routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/jobs', jobRoutes);
-app.use('/api/v1/application', applicationRoutes);
+app.use('/api/v1/applications', applicationRoutes);
 
 // catch-all route
 app.use((req, res) => {
