@@ -85,15 +85,26 @@ const getJobApplications = async (req, res) => {
 
     const offset = (page - 1) * limit;
 
+    const jobResult = await pool.query(
+      `SELECT jobs.id FROM jobs
+       INNER JOIN employer_profiles
+       ON jobs.employer_id = employer_profiles.id
+       WHERE jobs.id = $1 AND employer_profiles.user_id = $2
+      `,
+      [jobId, req.user.userId]
+    );
+
+    if (jobResult.rows.length === 0) {
+      return res.status(403).json({ message: 'Unauthorized access denied' });
+    }
+
     // base query parts
     const filters = [];
     const values = [];
 
     // filters
-    if (jobId) {
-      values.push(jobId);
-      filters.push(`job_id = $${values.length}`);
-    }
+    values.push(jobId);
+    filters.push(`job_id = $${values.length}`);
 
     if (status) {
       values.push(status);
@@ -108,7 +119,7 @@ const getJobApplications = async (req, res) => {
     const orderBy = sortOptions[sort] || sortOptions['newest'];
 
     // where clause
-    let whereClause = null;
+    let whereClause = '';
 
     if (filters.length > 0) {
       whereClause = `WHERE ${filters.join(' AND ')}`;
@@ -147,8 +158,6 @@ const getJobApplications = async (req, res) => {
     const totalPages = Math.ceil(totalResults / limit);
 
     res.status(200).json({
-      success: true,
-
       pagination: {
         page: page,
         per_page: limit,
