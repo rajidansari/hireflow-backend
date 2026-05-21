@@ -24,7 +24,7 @@ const createJob = async (req, res) => {
 
     res.status(201).json({ message: 'Job created', job: newJob });
   } catch (err) {
-    console.log(`Job creation failed :: ${err}`);
+    console.error(`Job creation failed :: ${err}`);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -176,7 +176,7 @@ const getAllJob = async (req, res) => {
       data: jobsResult.rows,
     });
   } catch (err) {
-    console.log(`Failed to fetch jobs :: ${err}`);
+    console.error(`Failed to fetch jobs :: ${err}`);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -218,7 +218,7 @@ const getJobDetails = async (req, res) => {
 
     res.status(200).json({ message: 'success', data: job });
   } catch (err) {
-    console.log(`Failed to fetch job details :: ${err}`);
+    console.error(`Failed to fetch job details :: ${err}`);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -311,7 +311,7 @@ const updateJobDetails = async (req, res) => {
 
     res.status(200).json({ message: 'success', data: updatedJob });
   } catch (err) {
-    console.log(`Failed to update job details :: ${err}`);
+    console.error(`Failed to update job details :: ${err}`);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -344,7 +344,7 @@ const deleteJob = async (req, res) => {
 
     res.status(200).json({ message: 'Deleted successfully' });
   } catch (err) {
-    console.log(`Failed to delete :: ${err}`);
+    console.error(`Failed to delete :: ${err}`);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -373,7 +373,7 @@ const getMyJobs = async (req, res) => {
 
     res.status(200).json({ message: 'success', data: jobs });
   } catch (err) {
-    console.log(`Failed to fetch jobs :: ${err}`);
+    console.error(`Failed to fetch jobs :: ${err}`);
     res.status(500).json({ message: 'Internal server error' });
   }
 };

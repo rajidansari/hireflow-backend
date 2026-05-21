@@ -17,7 +17,7 @@ function auth(req, res, next) {
 		
 			next();
 	} catch (err) {
-		console.log(`Auth middleware failed :: ${err}`);
+		console.error(`Auth middleware failed :: ${err}`);
 		if(err.name === "JsonWebTokenError") {
 			return res.status(401).json({message: "Invalid token"})
 		}

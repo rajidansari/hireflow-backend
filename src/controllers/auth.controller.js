@@ -50,7 +50,7 @@ const registerUserWithProfile = async (req, res) => {
     res.status(201).json({ message: 'Verify your email' });
   } catch (err) {
     await client.query('ROLLBACK');
-    console.log(`user register error :: ${err}`);
+    console.error(`user register error :: ${err}`);
     res.status(500).json({ message: 'Internal server error' });
   } finally {
     client.release();
@@ -94,7 +94,7 @@ const verifyUserEmail = async (req, res) => {
 
     res.status(200).json({ message: 'Verification success', accessToken });
   } catch (err) {
-    console.log(`User email verification failed :: ${err.message}`);
+    console.error(`User email verification failed :: ${err.message}`);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -135,7 +135,7 @@ const loginUser = async (req, res) => {
 
     res.status(200).json({ message: 'Login success', accessToken });
   } catch (err) {
-    console.log(`User login failed :: ${err.message}`);
+    console.error(`User login failed :: ${err.message}`);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -147,7 +147,7 @@ const logoutUser = async (req, res) => {
 
     res.status(200).json({ message: 'User logout success' });
   } catch (err) {
-    console.log(`user logout failed :: ${err}`);
+    console.error(`user logout failed :: ${err}`);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -172,7 +172,7 @@ const refreshAccessToken = async (req, res) => {
 
     res.status(200).json({ message: 'Refresh success', accessToken });
   } catch (err) {
-    console.log(`Refresh access token failed :: ${err}`);
+    console.error(`Refresh access token failed :: ${err}`);
     if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
       return res.status(401).json({ message: 'Invalid or expired token' });
     }
@@ -203,7 +203,7 @@ const forgotUserPassword = async (req, res) => {
 
     res.status(200).json({ message: 'Check your email for otp' });
   } catch (err) {
-    console.log(`forgot password failed :: ${err}`);
+    console.error(`forgot password failed :: ${err}`);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -239,7 +239,7 @@ const verifyResetOtp = async (req, res) => {
 
     res.status(200).json({ message: 'otp verification success' });
   } catch (err) {
-    console.log(`verify reset otp failed :: ${err}`);
+    console.error(`verify reset otp failed :: ${err}`);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -268,7 +268,7 @@ const resetUserPassword = async (req, res) => {
 
     res.status(200).json({ message: 'Password reset success' });
   } catch (err) {
-    console.log(`Reset password failed :: ${err}`);
+    console.error(`Reset password failed :: ${err}`);
     if (err.name === 'TokenExpiredError') {
       return res.status(400).json({ message: 'Invalid or expired token' });
     }

@@ -67,7 +67,7 @@ const createJobApplication = async (req, res) => {
 
     res.status(201).json({ message: 'Applied successfully', data: applicationResult.rows[0] });
   } catch (err) {
-    console.log(`Job application failed :: ${err}`);
+    console.error(`Job application failed :: ${err}`);
     if (req.file) {
       fileUnlink(filePath);
     }
@@ -176,7 +176,7 @@ const getJobApplications = async (req, res) => {
       data: applicationResult.rows,
     });
   } catch (err) {
-    console.log(`failed to fetch job applications :: ${err.message}`);
+    console.error(`failed to fetch job applications :: ${err.message}`);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -270,7 +270,7 @@ const getMyApplications = async (req, res) => {
       data: applicationResult.rows,
     });
   } catch (err) {
-    console.log(`Failed to fetch my applications :: ${err}`);
+    console.error(`Failed to fetch my applications :: ${err}`);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -301,7 +301,7 @@ const withdrawApplication = async (req, res) => {
 
     res.status(200).json({ message: 'Application withdraw success' });
   } catch (err) {
-    console.log(`Failed to withdraw application :: ${err}`);
+    console.error(`Failed to withdraw application :: ${err}`);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -334,7 +334,7 @@ const updateApplicationStatus = async (req, res) => {
 
     res.status(200).json({ message: 'Updated successfully', data: applicationResult.rows[0] });
   } catch (err) {
-    console.log(`Failed to update application status :: ${err}`);
+    console.error(`Failed to update application status :: ${err}`);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
