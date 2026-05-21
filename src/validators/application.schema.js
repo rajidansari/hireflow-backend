@@ -19,4 +19,11 @@ const myApplicationsSchema = z.object({
   sort: z.enum(['newest', 'oldest']).default('newest'),
 });
 
-export { applySchema, jobApplicationsSchema, myApplicationsSchema };
+// update application status
+const updateApplicationStatusSchema = z.object({
+  status: z.enum(['pending', 'reviewed', 'hired', 'rejected'], {
+    error: 'Invalid value for status',
+  }),
+});
+
+export { applySchema, jobApplicationsSchema, myApplicationsSchema, updateApplicationStatusSchema };

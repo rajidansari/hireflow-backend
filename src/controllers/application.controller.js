@@ -306,4 +306,43 @@ const withdrawApplication = async (req, res) => {
   }
 };
 
-export { createJobApplication, getJobApplications, getMyApplications, withdrawApplication };
+// update application status
+const updateApplicationStatus = async (req, res) => {
+  const { status } = req.body;
+  const applicationId = req.params?.id;
+
+  try {
+    const applicationResult = await pool.query(
+      `
+        UPDATE applications
+          SET status = $1
+        WHERE applications.id = $2
+        AND applications.job_id IN (
+          SELECT jobs.id FROM jobs
+          INNER JOIN employer_profiles
+          ON employer_profiles.id = jobs.employer_id
+          WHERE employer_profiles.user_id = $3
+        )
+        RETURNING id, status
+      `,
+      [status, applicationId, req.user.userId]
+    );
+
+    if (applicationResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+
+    res.status(200).json({ message: 'Updated successfully', data: applicationResult.rows[0] });
+  } catch (err) {
+    console.log(`Failed to update application status :: ${err}`);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export {
+  createJobApplication,
+  getJobApplications,
+  getMyApplications,
+  withdrawApplication,
+  updateApplicationStatus,
+};
