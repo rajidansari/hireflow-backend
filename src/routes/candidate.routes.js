@@ -4,9 +4,11 @@ import auth from '../middleware/auth.middleware.js';
 import {
   getCandidateProfile,
   updateCandidateProfile,
+  updateCV,
 } from '../controllers/candidate.controller.js';
 import { validate } from '../middleware/validate.middleware.js';
 import { updateCandidateProfileSchema } from '../validators/candidateProfile.schema.js';
+import { upload } from '../services/fileUpload.service.service.js';
 
 const router = Router();
 
@@ -18,5 +20,8 @@ router.patch(
   validate(updateCandidateProfileSchema),
   updateCandidateProfile
 );
+
+// update cv
+router.patch('/me/cv', auth, checkRole(['candidate']), upload.single('cv'), updateCV);
 
 export default router;
