@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import jobRoutes from './src/routes/job.routes.js';
 import applicationRoutes from './src/routes/application.routes.js';
 import candidateRoutes from './src/routes/candidate.routes.js';
+import employerRoutes from './src/routes/employer.routes.js';
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/jobs', jobRoutes);
 app.use('/api/v1/applications', applicationRoutes);
 app.use('/api/v1/candidates', candidateRoutes);
+app.use('/api/v1/employers', employerRoutes);
 
 // catch-all route
 app.use((req, res) => {
