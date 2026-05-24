@@ -11,11 +11,10 @@ const __dirname = path.dirname(__filename);
 const createJobApplication = async (req, res) => {
   const coverNote = req.body?.coverNote;
   const jobId = req.params?.jobId;
-  try {
-    let filePath = req.file
-      ? path.join(__dirname, '../../public/uploads', req.file.filename)
-      : null;
 
+  let filePath = req.file ? path.join(__dirname, '../../public/uploads', req.file.filename) : null;
+
+  try {
     let cvUrl = null;
 
     const candProfResult = await pool.query(
@@ -71,7 +70,7 @@ const createJobApplication = async (req, res) => {
     if (req.file) {
       fileUnlink(filePath);
     }
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 

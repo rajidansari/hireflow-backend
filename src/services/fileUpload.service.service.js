@@ -22,4 +22,24 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+const imageFileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === 'image/png' ||
+    file.mimetype === 'image/jpeg' ||
+    file.mimetype === 'image/webp'
+  ) {
+    cb(null, true);
+  } else {
+    const error = new Error('Invalid file type! Only image files are allowed.');
+    error.statusCode = 400;
+    cb(error);
+  }
+};
+
 export const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
+
+export const imageUpload = multer({
+  storage,
+  fileFilter: imageFileFilter,
+  limits: { fileSize: 2 * 1024 * 1024 },
+});

@@ -1,5 +1,12 @@
 import { rmSync } from 'fs';
 import pool from '../db/db.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { cloudinary } from '../services/cloudinary.service.js';
+import { fileUnlink } from '../utils/fileUnlink.utils.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const getEmployerProfile = async (req, res) => {
   try {
@@ -135,4 +142,50 @@ const updateEmployerProfile = async (req, res) => {
   }
 };
 
-export { getEmployerProfile, updateEmployerProfile };
+// update employer logo
+const updateLogo = async (req, res) => {
+  if (!req.file) return res.status(400).json({ message: 'Provide logo for update' });
+
+  const filePath = path.join(__dirname, '../../public/uploads', req.file.filename);
+
+  try {
+    const previousLogoResult = await pool.query(
+      `SELECT logo_public_id FROM employer_profiles WHERE user_id = $1`,
+      [req.user.userId]
+    );
+
+    const logoPublicId = previousLogoResult.rows[0]?.logo_public_id || null;
+
+    if (logoPublicId) {
+      await cloudinary.uploader.destroy(logoPublicId, { resource_type: 'image' });
+    }
+
+    const newLogo = await cloudinary.uploader.upload(filePath, {
+      resource_type: 'image',
+      folder: 'employers-logo',
+      public_id: req.file.filename,
+    });
+
+    fileUnlink(filePath);
+
+    const newLogoResult = await pool.query(
+      `
+        UPDATE employer_profiles
+        SET logo_url = $1, logo_public_id = $2
+        WHERE user_id = $3
+        RETURNING logo_url
+      `,
+      [newLogo.secure_url, newLogo.public_id, req.user.userId]
+    );
+
+    const newLogoUrl = newLogoResult.rows[0]?.logo_url;
+
+    res.status(200).json({ logo_url: newLogoUrl });
+  } catch (err) {
+    fileUnlink(filePath);
+    console.error(`Failed to update logo :: ${err}`);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export { getEmployerProfile, updateEmployerProfile, updateLogo };
