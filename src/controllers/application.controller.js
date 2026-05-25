@@ -18,7 +18,15 @@ const createJobApplication = async (req, res) => {
     let cvUrl = null;
 
     const candProfResult = await pool.query(
-      `SELECT id, default_cv_url FROM candidate_profiles WHERE user_id=$1`,
+      `
+      SELECT 
+        cp.id, 
+        cp.default_cv_url, 
+        u.fullname 
+      FROM candidate_profiles cp
+      INNER JOIN users u
+      ON cp.user_id = u.id
+      WHERE cp.user_id=$1`,
       [req.user.userId]
     );
 
@@ -64,9 +72,34 @@ const createJobApplication = async (req, res) => {
       [jobId, candidateId, cv_url, coverNote]
     );
 
+    // create notification
+    const notificatonResult = await pool.query(
+      `
+        SELECT
+          jobs.title AS job_title,
+          employer_profiles.user_id AS employer_user_id
+        FROM jobs
+        INNER JOIN employer_profiles ON jobs.employer_id = employer_profiles.id
+        WHERE jobs.id = $1
+      `,
+      [jobId]
+    );
+
+    const notificationInfo = notificatonResult.rows.length > 0 ? notificatonResult.rows[0] : {};
+
+    await pool.query(
+      `INSERT INTO notifications (user_id, application_id, type, message) VALUES ($1, $2, $3, $4)`,
+      [
+        notificationInfo.employer_user_id,
+        applicationResult.rows[0].id,
+        'new_applicant',
+        `${candidate.fullname} applied to your job: ${notificationInfo.job_title}`,
+      ]
+    );
+
     res.status(201).json({ message: 'Applied successfully', data: applicationResult.rows[0] });
   } catch (err) {
-    console.error(`Job application failed :: ${err}`);
+    console.error(`Job application failed :: ${err.message}`);
     if (req.file) {
       fileUnlink(filePath);
     }
@@ -322,13 +355,33 @@ const updateApplicationStatus = async (req, res) => {
           ON employer_profiles.id = jobs.employer_id
           WHERE employer_profiles.user_id = $3
         )
-        RETURNING id, status
+        RETURNING id, status, job_id, candidate_id
       `,
       [status, applicationId, req.user.userId]
     );
 
     if (applicationResult.rows.length === 0) {
       return res.status(404).json({ message: 'Application not found' });
+    }
+
+    // create notification
+    const [jobResult, userResult] = await Promise.all([
+      pool.query(`SELECT jobs.title FROM jobs WHERE id = $1`, [applicationResult.rows[0].job_id]),
+      pool.query(`SELECT user_id FROM candidate_profiles WHERE id = $1`, [
+        applicationResult.rows[0].candidate_id,
+      ]),
+    ]);
+
+    if (jobResult.rows.length > 0 && userResult.rows.length > 0) {
+      await pool.query(
+        `INSERT INTO notifications (user_id, application_id, type, message) VALUES ($1, $2, $3, $4)`,
+        [
+          userResult.rows[0].user_id,
+          applicationId,
+          'application_update',
+          `Your application for role: ${jobResult.rows[0].title} has been updated to: ${status}`,
+        ]
+      );
     }
 
     res.status(200).json({ message: 'Updated successfully', data: applicationResult.rows[0] });
