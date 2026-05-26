@@ -344,6 +344,17 @@ const updateApplicationStatus = async (req, res) => {
   const applicationId = req.params?.id;
 
   try {
+    // check db status
+    const currentStatusResult = await pool.query(`SELECT status FROM applications WHERE id = $1`, [
+      applicationId,
+    ]);
+
+    const currentStatus = currentStatusResult.rows[0]?.status;
+
+    if (currentStatus === status) {
+      return res.status(400).json({ message: 'Notification is already in this status' });
+    }
+
     const applicationResult = await pool.query(
       `
         UPDATE applications
