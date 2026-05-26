@@ -379,7 +379,7 @@ const updateApplicationStatus = async (req, res) => {
           userResult.rows[0].user_id,
           applicationId,
           'application_update',
-          `Your application for role: ${jobResult.rows[0].title} has been updated to: ${status}`,
+          `Your application status for role: ${jobResult.rows[0].title} has been updated to: ${status}`,
         ]
       );
     }
