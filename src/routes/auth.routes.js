@@ -21,16 +21,17 @@ import {
 } from '../controllers/auth.controller.js';
 
 import auth from '../middleware/auth.middleware.js';
+import { standardLimiter, strictLimiter } from '../middleware/rateLimit.middleware.js';
 
 const router = Router();
 
-router.post('/register', validate(registerSchema), registerUserWithProfile);
-router.patch('/verify-email', validate(verifyEmailSchema), verifyUserEmail);
-router.post('/login', validate(loginSchema), loginUser);
+router.post('/register', standardLimiter, validate(registerSchema), registerUserWithProfile);
+router.patch('/verify-email', standardLimiter, validate(verifyEmailSchema), verifyUserEmail);
+router.post('/login', strictLimiter, validate(loginSchema), loginUser);
 router.post('/logout', auth, logoutUser);
 router.get('/refresh', refreshAccessToken);
-router.post('/forgot-password', validate(forgotPasswordSchema), forgotUserPassword);
-router.post('/verify-reset-otp', validate(verifyResetOtpSchema), verifyResetOtp);
+router.post('/forgot-password', strictLimiter, validate(forgotPasswordSchema), forgotUserPassword);
+router.post('/verify-reset-otp', strictLimiter, validate(verifyResetOtpSchema), verifyResetOtp);
 router.patch('/reset-password', validate(resetPasswordSchema), resetUserPassword);
 
 export default router;
