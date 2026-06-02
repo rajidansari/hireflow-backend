@@ -8,6 +8,8 @@ import applicationRoutes from './src/routes/application.routes.js';
 import candidateRoutes from './src/routes/candidate.routes.js';
 import employerRoutes from './src/routes/employer.routes.js';
 import notiicationRoutes from './src/routes/notification.routes.js';
+import swaggerUI from 'swagger-ui-express';
+import swaggerSpec from './src/config/swagger.js';
 
 const app = express();
 
@@ -26,6 +28,9 @@ app.get('/', (req, res) => {
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
+// swagger api docs
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 // routes
 app.use('/api/v1/auth', authRoutes);

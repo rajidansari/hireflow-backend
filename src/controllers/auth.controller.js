@@ -22,7 +22,7 @@ const registerUserWithProfile = async (req, res) => {
 
     const isAlreadyUser = await pool.query(`SELECT email FROM users WHERE email = $1`, [email]);
     if (isAlreadyUser.rows[0]) {
-      return res.status(400).json({ message: 'Email is already registered, try logging!' });
+      return res.status(409).json({ message: 'Email is already registered, try logging!' });
     }
 
     await client.query('BEGIN');
