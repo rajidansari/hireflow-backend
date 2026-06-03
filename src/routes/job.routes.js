@@ -22,10 +22,505 @@ import { upload } from '../services/fileUpload.service.service.js';
 
 const router = Router();
 
+/**
+ * @swagger
+ *  /jobs:
+ *    post:
+ *      summary: Create job
+ *      tags:
+ *        - Jobs
+ * 
+ *      security:
+ *        - bearerAuth: []
+ * 
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              required:
+ *                - title
+ *                - description
+ *                - skills
+ *                - location
+ *                - salary_min
+ *                - salary_max
+ * 
+ *              properties:
+ *                title:
+ *                  type: string
+ *                  example: Software Engineer
+ * 
+ *                description:
+ *                  type: string
+ *                  example: Looking for experienced software engineer
+ * 
+ *                skills:
+ *                  type: array
+ *                  items:
+ *                    type: string
+ *                  example:
+ *                    - PostgreSql
+ *                    - Express
+ *                    - Next.js
+ *                    - Unit Testing
+ *                    - Version Control
+ * 
+ *                location:
+ *                  type: string
+ *                  example: Pune
+ * 
+ *                salary_min: 
+ *                  type: integer
+ *                  example: 800000
+ * 
+ *                salary_max: 
+ *                  type: integer
+ *                  example: 1200000
+ * 
+ *      responses:
+ *        201:
+ *          description: Job created successfully
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  message:
+ *                    type: string
+ *                    example: Job created
+ * 
+ *                  job:
+ *                    type: object
+ *                    properties:
+ *                      id:
+ *                        type: string
+ *                        example: 1a2cbc1e-8dd5-4047-9c5a-128d87d0ddfe
+ * 
+ *                      title:
+ *                        type: string
+ *                        example: Software Engineer
+ * 
+ *        403:
+ *          description: Unauthorized access
+ * 
+ *        500:
+ *          description: Internal server error
+ */
 router.post('/', auth, checkRole(['employer']), validate(createJobSchema), createJob);
+
+/**
+ * @swagger
+ *  /jobs:
+ *    get:
+ *      summary: List all jobs
+ *      tags:
+ *        - Jobs
+ *    
+ *      parameters:
+ *        - in: query
+ *          name: title
+ *          schema:
+ *            type: string
+ *          description: Job title
+ *          example: Software Engineer
+ * 
+ *        - in: query
+ *          name: location
+ *          schema:
+ *            type: string
+ *          description: Job location
+ *          example: Gurugram
+ * 
+ *        - in: query
+ *          name: skills
+ *          schema:
+ *            type: array
+ *            items:
+ *              type: string
+ *            description: Filter jobs by skills
+ *            example:
+ *              - react
+ *              - nodejs
+ *              - mongodb
+ * 
+ *        - in: query
+ *          name: salary_min
+ *          schema:
+ *            type: integer
+ *          description: Filter by minimum salary
+ *          example: 800000
+ * 
+ *        - in: query
+ *          name: salary_max
+ *          schema:
+ *            type: integer
+ *          description: Filter by maximum salary
+ *          example: 1300000
+ * 
+ *        - in: query
+ *          name: page
+ *          schema:
+ *            type: integer
+ *          example: 1
+ *    
+ *        - in: query
+ *          name: limit
+ *          schema:
+ *            type: integer
+ *          description: How many jobs you want to see in a page
+ *          example: 20
+ * 
+ *        - in: query
+ *          name: sort
+ *          schema:
+ *            type: string
+ *            enum:
+ *              - newest
+ *              - oldest
+ *              - salary_high
+ *              - salary_low
+ *          example: newest
+ * 
+ *      responses:
+ *        200:
+ *          description: Jobs fetched successfully
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  message:
+ *                    type: string
+ *                    example: success
+ *
+ *                  pagination:
+ *                    type: object
+ *                    properties:
+ *                      page:
+ *                        type: integer
+ *                        example: 1
+ *                      per_page:
+ *                        type: integer
+ *                        example: 15
+ *                      total_pages:
+ *                        type: integer
+ *                        example: 1
+ *                      total_results:
+ *                        type: integer
+ *                        example: 3
+ *                      has_next_page:
+ *                        type: boolean
+ *                        example: false
+ *                      has_prev_page:
+ *                        type: boolean
+ *                        example: false
+ *
+ *                  filters:
+ *                    type: object
+ *                    properties:
+ *                      title:
+ *                        type: string
+ *                        nullable: true
+ *                      location:
+ *                        type: string
+ *                        nullable: true
+ *                      skills:
+ *                        type: string
+ *                        nullable: true
+ *                      salary_min:
+ *                        type: integer
+ *                        nullable: true
+ *                      salary_max:
+ *                        type: integer
+ *                        nullable: true
+ *                      sort:
+ *                        type: string
+ *                        example: newest
+ *
+ *                  data:
+ *                    type: array
+ *                    items:
+ *                      type: object
+ *                      properties:
+ *                        id:
+ *                          type: string
+ *                          format: uuid
+ *                          example: 1a2cbc1e-8dd5-4047-9c5a-128d87d0ddfe
+ *
+ *                        title:
+ *                          type: string
+ *                          example: Software Engineer
+ *
+ *                        skills:
+ *                          type: array
+ *                          items:
+ *                            type: string
+ *                          example:
+ *                            - React
+ *                            - Node
+ *                            - Express
+ *
+ *                        salary_min:
+ *                          type: integer
+ *                          example: 45000
+ *
+ *                        salary_max:
+ *                          type: integer
+ *                          example: 60000
+ *
+ *                        location:
+ *                          type: string
+ *                          example: New Delhi
+ *
+ *                        employer_id:
+ *                          type: string
+ *                          format: uuid
+ *                          example: 063802c0-7df8-45eb-9240-ac2eee6ce4af
+ *
+ *                        company_name:
+ *                          type: string
+ *                          example: Google
+ * 
+ *        500:
+ *          description: Internal server error
+ */
 router.get('/', getAllJob);
+
+/**
+ * @swagger
+ *  /jobs/my-jobs:
+ *    get:
+ *      summary: employer's posted jobs
+ *      tags:
+ *        - Jobs
+ *      security:
+ *        - bearerAuth: []
+ * 
+ *      responses:
+ *        200:
+ *          description: Successfully fetched employer's jobs
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  message:
+ *                    type: string
+ *                    example: success
+ *          
+ *                  data:
+ *                    type: array
+ *                    items:
+ *                      type: object
+ *                      properties:
+ *                        id:
+ *                          type: string
+ * 
+ *                        title:
+ *                          type: string
+ *                      
+ *                        description:
+ *                          type: string
+ *  
+ *                        skills:
+ *                          type: array
+ *                          items:
+ *                            type: string
+ *                          example:
+ *                            - Java
+ *                            - React
+ *                            - Nodejs
+ *                            - PostgreSql
+ *  
+ *                        location:
+ *                          type: string
+ *                          example: Gurugram
+ *  
+ *                        salary_min:
+ *                          type: integer
+ *                          example: 900000
+ *          
+ *                        salary_max:
+ *                          type: integer
+ *                          example: 1200000
+ * 
+ *                        status:
+ *                          type: string
+ *                          enum:
+ *                            - draft
+ *                            - active
+ *                            - expired
+ *                          example: active
+ * 
+ *                        created_at:
+ *                          type: string
+ *                          format: date
+ *        403:
+ *          description: Unauthorized access
+ * 
+ *        500:
+ *          description: Internal server error
+ * 
+ */
 router.get('/my-jobs', auth, checkRole(['employer']), getMyJobs);
+
+/**
+ * @swagger
+ *  /jobs/{id}:
+ *    get:
+ *      summary: get a specific job
+ *      tags:
+ *        - Jobs
+ * 
+ *      parameters:
+ *        - in: path
+ *          name: id
+ *          required: true
+ *          schema:
+ *            type: string
+ *            format: uuid
+ *          description: Job ID
+ * 
+ *      responses:
+ *        200:
+ *          description: Successfully fetched job details
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  id:
+ *                    type: string
+ *                  title:
+ *                    type: string
+ *                  description:
+ *                    type: string
+ *                  skills:
+ *                    type: array
+ *                    items:
+ *                      type: string
+ *                  location:
+ *                    type: string
+ *                  salary_min:
+ *                    type: integer
+ *                  salary_max:
+ *                    type: integer
+ *                  status:
+ *                    type: string
+ *                    enum:
+ *                      - draft
+ *                      - active
+ *                      - expired
+ *                  created_at:
+ *                    type: string
+ *                  employer_id:
+ *                    type: string
+ *                  employer_name:
+ *                    type: string
+ *                  logo_url:
+ *                    type: string
+ *                  website:
+ *                    type: string
+ * 
+ *        404:
+ *          description: Job not found
+ *        500:
+ *          description: Internal server error
+ */
 router.get('/:id', getJobDetails);
+
+/**
+ * @swagger
+ * /jobs/{id}:
+ *   patch:
+ *     summary: Update job details
+ *     tags:
+ *       - Jobs
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Job ID
+ *
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               skills:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               location:
+ *                 type: string
+ *               salary_min:
+ *                 type: integer
+ *               salary_max:
+ *                 type: integer
+ *               status:
+ *                 type: string
+ *                 enum:
+ *                   - open
+ *                   - closed
+ *
+ *     responses:
+ *       200:
+ *         description: Job updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: success
+ *
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       format: uuid
+ *                     title:
+ *                       type: string
+ *                     description:
+ *                       type: string
+ *                     skills:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                     location:
+ *                       type: string
+ *                     salary_min:
+ *                       type: integer
+ *                     salary_max:
+ *                       type: integer
+ *                     status:
+ *                       type: string
+ *
+ *       400:
+ *         description: Nothing to update
+ *
+ *       403:
+ *         description: Can not perform this task
+ *
+ *       404:
+ *         description: Requested job not found
+ */
 router.patch(
   '/:id',
   auth,
@@ -34,6 +529,35 @@ router.patch(
   updateJobDetails
 );
 
+/**
+ * @swagger
+ * /jobs/{id}:
+ *   delete:
+ *     summary: Delete a job
+ *     tags:
+ *       - Jobs
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Job ID
+ *
+ *     responses:
+ *       200:
+ *         description: Job deleted successfully
+ *
+ *       403:
+ *         description: You can not perform this action
+ *
+ *       404:
+ *         description: Requested job not found
+ */
 router.delete('/:id', auth, checkRole(['employer']), deleteJob);
 
 // applications
