@@ -11,6 +11,29 @@ const options = {
       description: 'API documentation for job board backend',
     },
 
+    tags: [
+      {
+        name: 'Auth',
+        description: 'Authentication endpoints',
+      },
+      {
+        name: 'Jobs',
+        description: 'Job management endpoints',
+      },
+      {
+        name: 'Applications',
+        description: 'Application management endpoints',
+      },
+      {
+        name: 'Notifications',
+        description: 'Notification management endpoints',
+      },
+      {
+        name: 'Profile',
+        description: 'Profile management endpoints for candidate & employer',
+      },
+    ],
+
     servers: [
       {
         url: `http://localhost:${config.port}/api/v1`,

@@ -69,7 +69,7 @@ const markNotificationSeen = async (req, res) => {
     );
 
     if (markSeenResult.rows.length === 0) {
-      return res.status(404).json({ message: 'Notification not found' });
+      return res.status(200).json({ message: 'marked as seen' });
     }
 
     res.status(200).json(markSeenResult.rows[0]);
@@ -86,14 +86,14 @@ const markAllNotificationsSeen = async (req, res) => {
       `
 				UPDATE notifications
 				SET seen = true
-				WHERE user_id = $1
+				WHERE seen = false AND user_id = $1
 				RETURNING id, seen
 			`,
       [req.user.userId]
     );
 
     if (markSeenResult.rows.length === 0) {
-      return res.status(404).json({ message: 'Notification not found' });
+      return res.status(200).json({ message: 'No unseen notifications found' });
     }
 
     res.status(200).json(markSeenResult.rows);
@@ -140,11 +140,12 @@ const deleteSeenNotifications = async (req, res) => {
       [req.user.userId]
     );
 
-    if (deleteNotificationsResult.rows.length === 0) {
-      return res.status(200).json({ message: 'Nothing to delete' });
-    }
-
-    res.status(200).json({ message: 'Notifications deleted' });
+    res
+      .status(200)
+      .json({
+        message: 'Notifications deleted',
+        deleted_count: deleteNotificationsResult.rows.length,
+      });
   } catch (err) {
     console.error(`Failed to delete seen notifications`, err.message);
     res.status(500).json({ message: 'Internal server error' });
@@ -163,11 +164,9 @@ const deleteAllNotifications = async (req, res) => {
       [req.user.userId]
     );
 
-    if (deleteAllResult.rows.length === 0) {
-      return res.status(200).json({ message: 'Nothing to delete' });
-    }
-
-    res.status(200).json({ message: 'All notifications deleted' });
+    res
+      .status(200)
+      .json({ message: 'Notifications deleted', deleted_count: deleteAllResult.rows.length });
   } catch (err) {
     console.error(`Failed to delete all notifications`, err.message);
     res.status(500).json({ message: 'Internal server error' });
