@@ -50,12 +50,12 @@ const updateCandidateProfile = async (req, res) => {
     const values = [];
 
     // build dynamic query
-    if (headline) {
+    if (headline !== undefined) {
       values.push(headline);
       updates.push(`headline = $${values.length}`);
     }
 
-    if (description) {
+    if (description !== undefined) {
       values.push(description);
       updates.push(`description = $${values.length}`);
     }
@@ -65,12 +65,12 @@ const updateCandidateProfile = async (req, res) => {
       updates.push(`skills = $${values.length}`);
     }
 
-    if (location) {
+    if (location !== undefined) {
       values.push(location);
       updates.push(`location = $${values.length}`);
     }
 
-    if (portfolioUrl) {
+    if (portfolioUrl !== undefined) {
       values.push(portfolioUrl);
       updates.push(`portfolio_url = $${values.length}`);
     }

@@ -57,7 +57,7 @@ const updateEmployerProfile = async (req, res) => {
       updates.push(`company_name = $${values.length}`);
     }
 
-    if (website) {
+    if (website !== undefined) {
       values.push(website);
       updates.push(`website = $${values.length}`);
     }
@@ -67,7 +67,7 @@ const updateEmployerProfile = async (req, res) => {
       updates.push(`industry = $${values.length}`);
     }
 
-    if (bio) {
+    if (bio !== undefined) {
       values.push(bio);
       updates.push(`bio = $${values.length}`);
     }
