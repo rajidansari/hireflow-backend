@@ -29,10 +29,10 @@ const router = Router();
  *      summary: Create job
  *      tags:
  *        - Jobs
- * 
+ *
  *      security:
  *        - bearerAuth: []
- * 
+ *
  *      requestBody:
  *        required: true
  *        content:
@@ -46,16 +46,16 @@ const router = Router();
  *                - location
  *                - salary_min
  *                - salary_max
- * 
+ *
  *              properties:
  *                title:
  *                  type: string
  *                  example: Software Engineer
- * 
+ *
  *                description:
  *                  type: string
  *                  example: Looking for experienced software engineer
- * 
+ *
  *                skills:
  *                  type: array
  *                  items:
@@ -66,19 +66,19 @@ const router = Router();
  *                    - Next.js
  *                    - Unit Testing
  *                    - Version Control
- * 
+ *
  *                location:
  *                  type: string
  *                  example: Pune
- * 
- *                salary_min: 
+ *
+ *                salary_min:
  *                  type: integer
  *                  example: 800000
- * 
- *                salary_max: 
+ *
+ *                salary_max:
  *                  type: integer
  *                  example: 1200000
- * 
+ *
  *      responses:
  *        201:
  *          description: Job created successfully
@@ -90,21 +90,21 @@ const router = Router();
  *                  message:
  *                    type: string
  *                    example: Job created
- * 
+ *
  *                  job:
  *                    type: object
  *                    properties:
  *                      id:
  *                        type: string
  *                        example: 1a2cbc1e-8dd5-4047-9c5a-128d87d0ddfe
- * 
+ *
  *                      title:
  *                        type: string
  *                        example: Software Engineer
- * 
+ *
  *        403:
  *          description: Unauthorized access
- * 
+ *
  *        500:
  *          description: Internal server error
  */
@@ -117,7 +117,7 @@ router.post('/', auth, checkRole(['employer']), validate(createJobSchema), creat
  *      summary: List all jobs
  *      tags:
  *        - Jobs
- *    
+ *
  *      parameters:
  *        - in: query
  *          name: title
@@ -125,14 +125,14 @@ router.post('/', auth, checkRole(['employer']), validate(createJobSchema), creat
  *            type: string
  *          description: Job title
  *          example: Software Engineer
- * 
+ *
  *        - in: query
  *          name: location
  *          schema:
  *            type: string
  *          description: Job location
  *          example: Gurugram
- * 
+ *
  *        - in: query
  *          name: skills
  *          schema:
@@ -144,34 +144,34 @@ router.post('/', auth, checkRole(['employer']), validate(createJobSchema), creat
  *              - react
  *              - nodejs
  *              - mongodb
- * 
+ *
  *        - in: query
  *          name: salary_min
  *          schema:
  *            type: integer
  *          description: Filter by minimum salary
  *          example: 800000
- * 
+ *
  *        - in: query
  *          name: salary_max
  *          schema:
  *            type: integer
  *          description: Filter by maximum salary
  *          example: 1300000
- * 
+ *
  *        - in: query
  *          name: page
  *          schema:
  *            type: integer
  *          example: 1
- *    
+ *
  *        - in: query
  *          name: limit
  *          schema:
  *            type: integer
  *          description: How many jobs you want to see in a page
  *          example: 20
- * 
+ *
  *        - in: query
  *          name: sort
  *          schema:
@@ -182,7 +182,7 @@ router.post('/', auth, checkRole(['employer']), validate(createJobSchema), creat
  *              - salary_high
  *              - salary_low
  *          example: newest
- * 
+ *
  *      responses:
  *        200:
  *          description: Jobs fetched successfully
@@ -282,7 +282,7 @@ router.post('/', auth, checkRole(['employer']), validate(createJobSchema), creat
  *                        company_name:
  *                          type: string
  *                          example: Google
- * 
+ *
  *        500:
  *          description: Internal server error
  */
@@ -297,7 +297,7 @@ router.get('/', getAllJob);
  *        - Jobs
  *      security:
  *        - bearerAuth: []
- * 
+ *
  *      responses:
  *        200:
  *          description: Successfully fetched employer's jobs
@@ -309,7 +309,7 @@ router.get('/', getAllJob);
  *                  message:
  *                    type: string
  *                    example: success
- *          
+ *
  *                  data:
  *                    type: array
  *                    items:
@@ -317,13 +317,13 @@ router.get('/', getAllJob);
  *                      properties:
  *                        id:
  *                          type: string
- * 
+ *
  *                        title:
  *                          type: string
- *                      
+ *
  *                        description:
  *                          type: string
- *  
+ *
  *                        skills:
  *                          type: array
  *                          items:
@@ -333,19 +333,19 @@ router.get('/', getAllJob);
  *                            - React
  *                            - Nodejs
  *                            - PostgreSql
- *  
+ *
  *                        location:
  *                          type: string
  *                          example: Gurugram
- *  
+ *
  *                        salary_min:
  *                          type: integer
  *                          example: 900000
- *          
+ *
  *                        salary_max:
  *                          type: integer
  *                          example: 1200000
- * 
+ *
  *                        status:
  *                          type: string
  *                          enum:
@@ -353,16 +353,16 @@ router.get('/', getAllJob);
  *                            - active
  *                            - expired
  *                          example: active
- * 
+ *
  *                        created_at:
  *                          type: string
  *                          format: date
  *        403:
  *          description: Unauthorized access
- * 
+ *
  *        500:
  *          description: Internal server error
- * 
+ *
  */
 router.get('/my-jobs', auth, checkRole(['employer']), getMyJobs);
 
@@ -373,7 +373,7 @@ router.get('/my-jobs', auth, checkRole(['employer']), getMyJobs);
  *      summary: get a specific job
  *      tags:
  *        - Jobs
- * 
+ *
  *      parameters:
  *        - in: path
  *          name: id
@@ -382,7 +382,7 @@ router.get('/my-jobs', auth, checkRole(['employer']), getMyJobs);
  *            type: string
  *            format: uuid
  *          description: Job ID
- * 
+ *
  *      responses:
  *        200:
  *          description: Successfully fetched job details
@@ -423,7 +423,7 @@ router.get('/my-jobs', auth, checkRole(['employer']), getMyJobs);
  *                    type: string
  *                  website:
  *                    type: string
- * 
+ *
  *        404:
  *          description: Job not found
  *        500:
@@ -561,6 +561,86 @@ router.patch(
 router.delete('/:id', auth, checkRole(['employer']), deleteJob);
 
 // applications
+
+/**
+ * @swagger
+ *  /jobs/{jobId}/applications:
+ *    post:
+ *      summary: Create application for job
+ *      tags:
+ *        - Applications
+ *      security:
+ *        - bearerAuth: []
+ *
+ *      requestBody:
+ *        content:
+ *          multipart/form-data:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                coverNote:
+ *                  type: string
+ *
+ *      parameters:
+ *        - in: path
+ *          name: jobId
+ *          required: true
+ *          schema:
+ *            type: string
+ *            format: uuid
+ *          description: Job id
+ *
+ *      responses:
+ *        201:
+ *          description: Application submitted
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  id:
+ *                    type: string
+ *                    format: uuid
+ *
+ *                  job_id:
+ *                    type: string
+ *                    format: uuid
+ *
+ *                  candidate_id:
+ *                    type: string
+ *                    format: uuid
+ *
+ *                  cv_url:
+ *                    type: string
+ *
+ *                  status:
+ *                    type: string
+ *                    enum:
+ *                      - pending
+ *                      - reviewed
+ *                      - hired
+ *                      - rejected
+ *
+ *                  cover_note:
+ *                    type: string
+ *
+ *                  applied_at:
+ *                    type: string
+ *                    format: date-time
+ *                    example: 2026-05-20T18:31:03.000Z
+ *
+ *        400:
+ *          description: CV not uploaded
+ *
+ *        403:
+ *          description: Unauthorized access
+ *
+ *        409:
+ *          description: Already applied
+ *
+ *        500:
+ *          description: Internal server error
+ */
 router.post(
   '/:jobId/applications',
   auth,
@@ -570,6 +650,104 @@ router.post(
   createJobApplication
 );
 
+/**
+ * @swagger
+ * /jobs/{jobId}/applications:
+ *   get:
+ *     summary: Get applications for a specific job
+ *     tags:
+ *       - Applications
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: path
+ *         name: jobId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Job ID
+ *
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         example: 1
+ *
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         example: 10
+ *
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum:
+ *             - pending
+ *             - reviewed
+ *             - hired
+ *             - rejected
+ *         description: Filter applications by status
+ *
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum:
+ *             - newest
+ *             - oldest
+ *         example: newest
+ *
+ *     responses:
+ *       200:
+ *         description: Applications fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 pagination:
+ *                   type: object
+ *
+ *                 filters:
+ *                   type: object
+ *
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         format: uuid
+ *
+ *                       job_id:
+ *                         type: string
+ *                         format: uuid
+ *
+ *                       candidate_id:
+ *                         type: string
+ *                         format: uuid
+ *
+ *                       cv_url:
+ *                         type: string
+ *
+ *                       status:
+ *                         type: string
+ *
+ *                       cover_note:
+ *                         type: string
+ *
+ *                       applied_at:
+ *                         type: string
+ *                         format: date-time
+ *
+ *       403:
+ *         description: Unauthorized access denied
+ */
 router.get('/:jobId/applications', auth, checkRole(['employer']), getJobApplications);
 
 export default router;
