@@ -42,7 +42,6 @@ export const config = {
 };
 
 const required = [
-  'DATABASE_URL_LOCAL',
   'DATABASE_URL_NEON',
   'ACCESS_TOKEN_KEY',
   'REFRESH_TOKEN_KEY',
