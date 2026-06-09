@@ -12,7 +12,7 @@ const transporter = createTransport({
 
 const sendOtpEmail = async (email, otp) => {
   await transporter.sendMail({
-    from: 'jobportal@noreply.com',
+    from: 'Hireflow <rajidansari25@gmail.com>',
     to: email,
     subject: 'Verify your email',
     html: `
@@ -52,7 +52,7 @@ const sendOtpEmail = async (email, otp) => {
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
 
         <p style="font-size: 12px; color: #999; text-align: center;">
-          Job Portal
+          Hireflow
         </p>
 
       </div>
@@ -64,7 +64,7 @@ const sendOtpEmail = async (email, otp) => {
 // password reset otp send mail
 const sendPasswordResetOtp = async (email, otp) => {
   await transporter.sendMail({
-    from: 'jobportal@noreply.com',
+    from: 'Hireflow <rajidansari25@gmail.com>',
     to: email,
     subject: 'Reset Your Password',
     html: `

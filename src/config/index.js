@@ -19,12 +19,20 @@ export const config = {
     resetTokenKey: process.env.JWT_RESET_SECRET,
   },
 
-  smtp: {
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    user: process.env.SMTP_USER,
-    password: process.env.SMTP_PASS,
-  },
+  smtp:
+    process.env.NODE_ENV === 'production'
+     ? {
+          host: process.env.SMTP_HOST,
+          port: process.env.SMTP_PORT,
+          user: process.env.SMTP_USER,
+          password: process.env.SMTP_PASS,
+        }
+      : {
+          host: process.env.SMTP_HOST_DEV,
+          port: process.env.SMTP_PORT_DEV,
+          user: process.env.SMTP_USER_DEV,
+          password: process.env.SMTP_PASS_DEV,
+        },
 
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,
