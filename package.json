@@ -8,6 +8,8 @@
     "start": "node index.js",
     "migrate:create": "node-pg-migrate create --migrations-dir src/db/migrations",
     "migrate:up": "node-pg-migrate up --migrations-dir src/db/migrations --dotenv .env --database-url-var DATABASE_URL_LOCAL ",
+    "migrate:up:docker": "node-pg-migrate up --migrations-dir src/db/migrations --dotenv .env --database-url-var DATABASE_URL_DOCKER",
+    "migrate:down:docker": "node-pg-migrate down --migrations-dir src/db/migrations --dotenv .env --database-url-var DATABASE_URL_DOCKER",
     "migrate:down": "node-pg-migrate down --migrations-dir src/db/migrations --dotenv .env --database-url-var DATABASE_URL_LOCAL "
   },
   "keywords": [],
