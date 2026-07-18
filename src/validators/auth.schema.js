@@ -60,7 +60,7 @@ const verifyResetOtpSchema = z.object({
 });
 
 const resetPasswordSchema = z.object({
-  password: z.string({ error: 'Password must be atleast 8 characters long' }),
+  password: z.string().min(8, { error: 'Password must be atleast 8 characters long' }),
 });
 
 export {
