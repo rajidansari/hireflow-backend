@@ -14,7 +14,10 @@ import swaggerSpec from './src/config/swagger.js';
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}));
 
 // to get cookies in req
 app.use(cookieParser());
