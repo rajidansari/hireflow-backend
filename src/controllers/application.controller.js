@@ -259,18 +259,30 @@ const getMyApplications = async (req, res) => {
 
     const mainQuery = `
       SELECT
-        id,
-        job_id,
-        candidate_id,
-        cv_url,
-        status,
-        cover_note,
-        applied_at
-      FROM applications
-      
-      ${whereClause}
+        a.id,
+        a.job_id,
+        a.candidate_id,
+        a.cv_url,
+        a.status,
+        a.cover_note,
+        a.applied_at,
 
-      ORDER BY ${orderBy}
+        j.title,
+        j.location,
+
+        ep.company_name
+
+      FROM applications a
+
+      JOIN jobs j
+      ON j.id = a.job_id
+
+      JOIN employer_profiles ep
+      ON ep.id = j.employer_id
+      
+      ${whereClause.replaceAll('candidate_id', 'a.candidate_id').replaceAll('status', 'a.status')}
+
+      ORDER BY ${orderBy.replace('applied_at', 'a.applied_at')}
       
       LIMIT $${values.length + 1}
 
