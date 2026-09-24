@@ -78,9 +78,9 @@ const updateEmployerProfile = async (req, res) => {
     }
 
     // return if no values for update
-    if (!fullname && updates.length === 0) {
-      return res.status(400).json({ message: 'No fields provided for update' });
-    }
+    // if (!fullname && updates.length === 0) {
+    //   return res.status(400).json({ message: 'No fields provided for update' });
+    // }
 
     let updateClause = '';
     let profileUpdateQuery = '';

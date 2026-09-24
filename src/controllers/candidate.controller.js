@@ -76,9 +76,9 @@ const updateCandidateProfile = async (req, res) => {
     }
 
     // return if no fields for update
-    if (!fullname && updates.length === 0) {
-      return res.status(400).json({ message: 'No fields provided for update' });
-    }
+    // if (!fullname && updates.length === 0) {
+    //   return res.status(400).json({ message: 'No fields provided for update' });
+    // }
 
     // update clause
     let updateClause = '';
