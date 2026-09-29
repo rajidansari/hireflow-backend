@@ -118,7 +118,7 @@ const getJobApplications = async (req, res) => {
     const offset = (page - 1) * limit;
 
     const jobResult = await pool.query(
-      `SELECT jobs.id FROM jobs
+      `SELECT jobs.id, jobs.title, jobs.location, jobs.salary_min, jobs.salary_max FROM jobs
        INNER JOIN employer_profiles
        ON jobs.employer_id = employer_profiles.id
        WHERE jobs.id = $1 AND employer_profiles.user_id = $2
@@ -163,14 +163,27 @@ const getJobApplications = async (req, res) => {
 
     const mainQuery = `
       SELECT
-        id,
-        job_id,
-        candidate_id,
-        cv_url,
-        status,
-        cover_note,
-        applied_at
-      FROM applications
+        appl.id,
+        appl.job_id,
+        appl.candidate_id,
+        appl.cv_url,
+        appl.status,
+        appl.cover_note,
+        appl.applied_at,
+
+        cp.headline,
+        cp.skills,
+        cp.location,
+        cp.portfolio_url,
+
+        u.fullname,
+        u.email
+
+      FROM applications appl
+      JOIN candidate_profiles cp
+      ON appl.candidate_id = cp.id
+      JOIN users u
+      ON cp.user_id = u.id
 
       ${whereClause}
 
@@ -206,6 +219,7 @@ const getJobApplications = async (req, res) => {
       },
 
       data: applicationResult.rows,
+      job_data: jobResult.rows?.[0],
     });
   } catch (err) {
     console.error(`failed to fetch job applications :: ${err.message}`);
