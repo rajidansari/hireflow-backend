@@ -190,7 +190,7 @@ router.delete('/:id', auth, checkRole(['candidate']), withdrawApplication);
  *
  *                     status:
  *                       type: string
- *                       example: shortlisted
+ *                       example: hired
  *
  *                     job_id:
  *                       type: string
@@ -207,7 +207,7 @@ router.delete('/:id', auth, checkRole(['candidate']), withdrawApplication);
  *         description: Application not found
  */
 router.patch(
-  '/:id',
+  '/:id/status',
   auth,
   checkRole(['employer']),
   validate(updateApplicationStatusSchema),
