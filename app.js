@@ -14,10 +14,22 @@ import swaggerSpec from './src/config/swagger.js';
 const app = express();
 
 app.use(helmet());
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true,
-}));
+
+// cors config
+const allowedOrigins = ['http://localhost:5173', 'https://hireflow0.vercel.app'];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+  })
+);
 
 // to get cookies in req
 app.use(cookieParser());
