@@ -45,7 +45,9 @@ const registerUserWithProfile = async (req, res) => {
 
     await client.query('COMMIT');
 
-    await sendOtpEmail(email, otp);
+    sendOtpEmail(email, otp).catch(err => {
+      console.error(`OTP email failed :: ${err.message}`);
+    });
 
     res.status(201).json({ message: 'Verify your email' });
   } catch (err) {
@@ -199,7 +201,9 @@ const forgotUserPassword = async (req, res) => {
       [otp, user.id]
     );
 
-    await sendPasswordResetOtp(email, otp);
+    sendPasswordResetOtp(email, otp).catch(err => {
+      console.error(`OTP email failed :: ${err.message}`);
+    });
 
     res.status(200).json({ message: 'Check your email for otp' });
   } catch (err) {
