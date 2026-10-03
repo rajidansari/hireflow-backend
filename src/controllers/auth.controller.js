@@ -131,7 +131,7 @@ const loginUser = async (req, res) => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: config.nodeEnv === 'production',
-      sameSite: 'Lax',
+      sameSite: config.nodeEnv === 'production' ? 'none' : 'Lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
